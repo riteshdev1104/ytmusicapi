@@ -1,29 +1,32 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from ytmusicapi import YTMusic
 
 app = Flask(__name__)
+CORS(app)  # This enables CORS for all routes
+
 ytmusic = YTMusic()
 
 @app.route('/search')
-def search_music():
+def search():
     query = request.args.get('q')
     if not query:
-        return jsonify({'error': 'Missing search query'}), 400
+        return jsonify([])
 
-    results = ytmusic.search(query, filter="songs", limit=10)
+    search_results = ytmusic.search(query, filter='songs')
+    songs = []
 
-    simplified = []
-    for song in results:
-        simplified.append({
-            "title": song.get("title"),
-            "videoId": song.get("videoId"),
-            "duration": song.get("duration"),
-            "artist": ', '.join([a["name"] for a in song.get("artists", [])]),
-            "album": song.get("album", {}).get("name"),
-            "thumbnail": song.get("thumbnails", [{}])[-1].get("url")
+    for song in search_results:
+        songs.append({
+            'title': song['title'],
+            'artist': song['artists'][0]['name'] if song['artists'] else '',
+            'album': song['album']['name'] if song.get('album') else '',
+            'duration': song['duration'],
+            'videoId': song['videoId'],
+            'thumbnail': song['thumbnails'][-1]['url']
         })
 
-    return jsonify(simplified)
+    return jsonify(songs)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)
+    app.run(host='0.0.0.0', port=10000
