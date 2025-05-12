@@ -3,7 +3,7 @@ from flask_cors import CORS
 from ytmusicapi import YTMusic
 
 app = Flask(__name__)
-CORS(app)  # This enables CORS for all routes
+CORS(app)  # Enables CORS for all domains
 
 ytmusic = YTMusic()
 
@@ -29,4 +29,4 @@ def search():
     return jsonify(songs)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000
+    app.run(host='0.0.0.0', port=10000)
